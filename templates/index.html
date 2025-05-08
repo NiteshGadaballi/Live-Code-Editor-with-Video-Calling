@@ -1,0 +1,121 @@
+<!doctype html>
+<html>
+    <head>
+        <script src="static/codemirror/lib/codemirror.js"></script>
+        <link rel="stylesheet" href="static/codemirror/lib/codemirror.css"/>
+        <script src="static/codemirror/mode/xml/xml.js"></script>
+        <link rel="stylesheet" href="static/codemirror/theme/dracula.css">
+         <script src="static/codemirror/addon/edit/closetag.js"></script>
+         <script src="static/codemirror/addon/edit/closebrackets.js"></script>
+         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+         <style>
+            #link-container {
+                display: none; /* Initially hides the link */
+            }
+            #copy{
+                background-color: blue;
+                width: 70px;
+                border-radius: 30px;
+            }
+            #copylink
+            {color: blue;
+            font-size: 25px;}
+        </style>
+
+    </head>
+    <body style="background-color:rgb(224, 224, 32)">
+        <h1 style="color:blue;text-align: center;">Flask & Twilio Video Conference</h1>
+        <p id="copylink"><strong>Copy the link from below button to invite others:</strong></p>
+        <!-- Hidden link container -->
+    <div id="link-container">
+        <input type="text" id="room-link" value="{{ ngrok_url }}" readonly>
+    </div>
+       <!-- Button to copy the link -->
+       <button id="copy" onclick="copyLink()">Copy Link</button><br><br>
+
+       <script>
+           function copyLink() {
+               // Get the dynamically generated link
+               const linkInput = document.getElementById("room-link");
+   
+               // Select and copy the link
+               linkInput.select();
+               linkInput.setSelectionRange(0, 99999); // For mobile devices
+               navigator.clipboard.writeText(linkInput.value)
+                   .then(() => {
+                       alert("Link copied to clipboard!");
+                   })
+                   .catch(err => {
+                       console.error("Failed to copy link:", err);
+                   });
+           }
+       </script>
+    <textarea  id="editor"><p>hiii</p></textarea>
+    <script>
+        var editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
+            mode: "xml",
+            theme: "dracula",
+            lineNumbers: true,
+            autoCloseTags: true,
+            autoCloseBrackets: true,
+        });
+        console.log("CodeMirror initialized:", editor);
+    </script><br><br>
+        <form>
+            <label for="username">Name: </label>
+            <input type="text" name=”username” id="username">
+            <button style="background-color: blue;
+                width: 70px;" id="join_leave">Join call</button>
+            <button style="background-color: blue;color: black;border-radius: 200px;
+                width: 70px;"id="share_screen" disabled>Share screen</button>
+            <button style="background-color: blue;color: black;border-radius: 200px;
+                width: 70px;"id="toggle_chat" disabled>Toggle chat</button>
+        </form>
+        <p id="count">Disconnected.</p>
+        <div id="root">
+            <div id="container" class="container">
+                <div id="local" class="participant"><div></div><div class="label">Me</div></div>
+                <!-- more participants will be added dynamically here -->
+            </div>
+        </div>
+        <div id="chat-container">
+            <!-- Chat messages will appear here -->
+        </div>
+        <input type="text" id="message-input" placeholder="Type a message...">
+        <button style="background-color: blue;color: black;border-radius: 200px;
+                width: 70px;"onclick="sendMessage()">Send</button>
+        <button style="background-color: blue;color: black;border-radius: 200px;
+                width: 70px;"id="reset-button" onclick="resetRoom()">Start New Room</button>
+        </div>
+        <div id="popup-notification" style="display: none; position: fixed; top: 20px; right: 20px; background: #f0f8ff; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);">
+            <span id="popup-message"></span>
+          </div>
+          
+        <script>
+            // Function to send a message
+            function sendMessage() {
+                const chatContainer = document.getElementById('chat-container');
+                const messageInput = document.getElementById('message-input');
+                const message = messageInput.value.trim();
+    
+                if (message) {
+                    const newMessage = document.createElement('p');
+                    newMessage.textContent = `You: ${message}`;
+                    chatContainer.appendChild(newMessage);
+                    messageInput.value = ''; // Clear the input
+                    chatContainer.scrollTop = chatContainer.scrollHeight; // Auto-scroll to the latest message
+                }
+            }
+    
+            // Function to reset the chat for a new room
+            function resetRoom() {
+                const chatContainer = document.getElementById('chat-container');
+                chatContainer.innerHTML = ''; // Clear all messages
+                alert('Chat reset for the new room!');
+            }
+        </script>
+        <script src="https://media.twiliocdn.com/sdk/js/video/releases/2.3.0/twilio-video.min.js"></script>
+        <script src="https://media.twiliocdn.com/sdk/js/conversations/releases/1.0.0/twilio-conversations.min.js"></script>
+        <script src="{{ url_for('static', filename='app.js') }}"></script>
+    </body>
+</html>
